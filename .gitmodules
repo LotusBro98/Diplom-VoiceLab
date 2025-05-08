@@ -1,0 +1,3 @@
+[submodule "VoiceLab"]
+	path = VoiceLab
+	url = https://github.com/LotusBro98/VoiceLab.git
