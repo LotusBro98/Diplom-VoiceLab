@@ -1,3 +1,6 @@
 [submodule "VoiceLab"]
 	path = VoiceLab
 	url = https://github.com/LotusBro98/VoiceLab.git
+[submodule "FastSpeech2-experiment/TTS"]
+	path = FastSpeech2-experiment/TTS
+	url = https://github.com/coqui-ai/TTS.git
