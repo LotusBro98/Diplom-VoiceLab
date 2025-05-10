@@ -27,6 +27,6 @@ cp $MAINTEX.pdf ../$PDF_NAME
 cd ..
 
 # Clear
-find $TEX/ -maxdepth 1 -type f -regex ".*\.\(log\|aux\|bbl\|blg\|out\|toc\|pdf\)" -exec rm -f {} \; ;
+find $TEX/ -maxdepth 2 -type f -regex ".*\.\(log\|aux\|bbl\|blg\|out\|toc\|pdf\|in\|lua\|md\.tex\)" -exec rm -f {} \; ;
 
 
