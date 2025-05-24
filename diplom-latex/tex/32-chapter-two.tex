@@ -1,7 +1,58 @@
 \chapter{Описание алгоритма}
 \label{cha:ch_2}
 
+В данной главе будет описано обратимое и устойчивое к искажениям преобразование для построения спектрограммы из аудиосигнала.
+Оно строится на основе операции многоканальной 1D свертки с заранее сформированным ядром, а также некоторой постобработки.
+
 \section{Теоретическое обоснование алгоритма}
+Напомним формулу 1D свертки. Пусть на входе есть двумерный массив данных $x: [L_{in} \times  C_{in}]$ 
+и ядро свертки в виде массива $K: [C_{out} \times N \times C_{in}]$. Также задан шаг свертки $s$.
+Тогда результат операции $y: [L_{out} \times C_{out}]$ рассчитывается по следующей формуле:
+\begin{equation}
+	y[i, c_{out}] = \sum_{j=0}^{N-1} \sum_{c_{in}=0}^{C_{in}-1} x[i \cdot s + j, c_{in}] \cdot K[c_{out}, j, c_{in}]
+\end{equation}
+\[i \in [0, L_{out}), \quad c_{out} \in [0, C_{out})\]
+\[L_{out} = \lfloor(L_{in} - N) / s\rfloor + 1\]
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\linewidth]{figures/conv1d_drawio}
+  \caption{Иллюстрации операции 1D свертки}
+  \label{fig:conv1d_drawio}
+\end{figure}
+
+Каждый вектор $y_i: [1 \times C_{out}]$ можно рассматривать как матричное умножение вырезанного окна $x_i: [1 \times (N \cdot C_{in})]$ на матрицу $K^T: [(N \cdot C_{in}) \times C_{out}]$.
+
+В случае, когда входным массивом является аудиосигнал, количество входных каналов $C_{in} = 1$, и можно несколько упростить формулу. 
+\[x: [L_{in}], \quad K: [C_{out} \times N]\]
+\begin{equation}
+	y[i, c_{out}] = \sum_{j=0}^{N-1} x[i \cdot s + j] \cdot K[c_{out}, j]
+\end{equation}
+
+
+\textbf{Дискретное оконное преобразование Фурье (STFT)} можно посчитать через 1D свертку, если сформировать ядро $K_{\mathrm{stft}}: [N \times N]$ следующим образом:
+\begin{equation}
+	K_{\mathrm{stft}}[k, n] = e^{-i\pi \frac{(n - N/2) \cdot k}{N}} * w[n]
+\end{equation}
+
+\textbf{Дискретное вейвлет-преобразование (DWT)} можно построить с помощью свертки с таким ядром:
+\begin{equation}
+	K_{\mathrm{dwt}}[k, n] = \psi^* \left(\frac{n - N/2}{a_0^k}\right)
+\end{equation}
+\[\psi(t) = e^{i\pi t} * e^{-\left(\frac{\pi t}{2\sigma}\right)^2}, \quad   a_0 \in (1, \infty)\]
+
+На рисунке \ref{fig:stft_kernel} изображены ядра сверток для указанных преобразований, а также для преобразования, которое будет описано в данной работе.
+
+\begin{figure}
+  \centering
+  \subfigure{\includegraphics[width=0.3\textwidth]{figures/stft_kernel}} 
+  \subfigure{\includegraphics[width=0.3\textwidth]{figures/dwt_kernel}} 
+  \subfigure{\includegraphics[width=0.3\textwidth]{figures/my_kernel}} 
+  \caption{Ядро 1D свертки для STFT (1), вейвлет преобразования (2) и предлагаемого в работе преобразования (3)}
+  \label{fig:stft_kernel}
+\end{figure}
+
+
 
 
 
