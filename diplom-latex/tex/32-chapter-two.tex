@@ -35,7 +35,7 @@
 	K_{\mathrm{stft}}[k, n] = e^{-i\pi \frac{(n - N/2) \cdot k}{N}} * w[n]
 \end{equation}
 
-\textbf{Дискретное вейвлет-преобразование (DWT)} можно построить с помощью свертки с таким ядром:
+\textbf{Дискретное вейвлет-преобразование (DWT)} на основе вейвлета Морле можно построить с помощью свертки с таким ядром:
 \begin{equation}
 	K_{\mathrm{dwt}}[k, n] = \psi^* \left(\frac{n - N/2}{a_0^k}\right)
 \end{equation}
@@ -53,8 +53,69 @@
 \end{figure}
 
 
+Теперь опишем процесс восстановления сигнала с помощью свертки, и при каких условиях он возможен.
 
+Для начала рассмотрим преобразование, дискретное по частотам, но непрерывное по времени, 
+представляющее собой свертку сигнала $x(t)$ с вейвлетом $\psi_m(t) = e^{2\pi i f_m t} \cdot w(t / \sigma_m)$.
 
+\begin{equation}
+  S_m(t)=\int \limits _{-\infty}^{+\infty}x(\tau)\,\psi_m(t - \tau)\,d\tau = \{x * \psi_m\}(t)
+  \label{eq:conv_x_psi}
+\end{equation}
+
+Здесь и далее, запись $\{u*v\}(t)$ обозначает свертку в математическом смысле, которая определяется следующим образом:
+
+\begin{equation}
+  \{u*v\}(t)\triangleq \int \limits_{-\infty }^{\infty }u(\tau )v(t-\tau )\,d\tau = \int \limits_{-\infty }^{\infty }u(t-\tau )v(\tau )\,d\tau
+\end{equation}
+
+Полученная в равенстве \ref{eq:conv_x_psi} функция $S_m(t)$ представляет собой сигнал, ограниченный некоторой полосой частот, 
+определяемой центральной частотой $f_m$ и спектральной шириной окна $\Delta f_m$.
+Если посчитать спектр сигнала $S_m(t)$ с помощью преобразования Фурье, то, согласно теореме о свертке \cite{conv_theorem}, 
+получим произведение спектра исходного сигнала $\mathcal{F}\{x(t)\}$ и спектра вейвлета $\mathcal{F}\{\psi_m^{*}(t)\}$.
+Спектр вейвлета представляет собой спектр оконной функции, центр которого сдвинут к частоте $f_m$.
+
+\begin{equation}
+  \mathcal{F}\{S_m\}(f) = \mathcal{F}\{x\}(f) \cdot \mathcal{F}\{\psi_m\}(f)
+\end{equation}
+
+Если произвести снова свертку $S_m(t)$ с вейвлетом $\psi_m(t)$ в качестве этапа восстановления и посчитать спектр полученного сигнала, получим:
+
+\begin{equation}
+  \tilde{x}_m(t) = \{S_m * \psi_m\}(t) = \int \limits _{-\infty}^{+\infty} S_m(\tau)\,\psi_m(t - \tau)\,d\tau
+\end{equation}
+\begin{equation}
+  \mathcal{F}\{\tilde{x}_m\} = \mathcal{F}\{S_m\} \cdot \mathcal{F}\{\psi_m\} = \mathcal{F}\{x\} \cdot (\mathcal{F}\{\psi_m\})^2
+\end{equation}
+
+Заметим, что спектр вейвлета является действительным в силу его симметричности $\psi(-t) = \psi^{*}(t)$, и равен спектру оконной функции, сдвинутым к центральной частоте $f_m$:
+\begin{equation}
+  \mathcal{F}\{\psi_m\}(f) = \mathcal{F}\{w(t/\sigma_m)\}(f - f_m) = \sigma_m \mathcal{F}\{w(t)\}((f - f_m) \sigma_m)
+\end{equation}
+
+При достаточно плотном перекрытии окон на оси частот, спектр исходного сигнала $\mathcal{F}\{x\}$ можно аналогично с методом, 
+приведенным в Главе 1, разделе про восстановление сигнала от STFT (Равенство \ref{eq:weighted_sum_stft}), 
+представить как взвешенную сумму:
+\begin{equation}
+  \mathcal{F}\{x\} = \frac{
+    \sum \limits_m \mathcal{F}\{x\} \cdot (\mathcal{F}\{\psi_m\})^2
+  }{
+    \sum \limits_m (\mathcal{F}\{\psi_m\})^2
+  } = 
+  \frac{
+    \sum \limits_m \mathcal{F}\{\tilde{x}_m\}
+  }{
+    \sum \limits_m (\mathcal{F}\{\psi_m\})^2
+  }
+\end{equation}
+
+В силу линейности преобразования Фурье,
+
+\begin{equation}
+x(t) = K_{\psi} \sum \limits_m \tilde{x}_m(t) = K_{\psi} \sum \limits_m \{S_m * \psi_m\}(t)
+\end{equation}
+
+Отметим, что данная формула справедлива даже когда вейвлеты и ширина их окон не упорядочены по правилу $\psi_m = \psi(\frac{t}{a_0^m})$
 
 \begin{markdown}
  - Оконное фурье через свертку
